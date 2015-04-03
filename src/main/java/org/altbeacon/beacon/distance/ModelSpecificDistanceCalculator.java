@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.util.Log;
 
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.logging.LogManager;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Obtains a <code>DistanceCalculator</code> appropriate for a specific Android model.  Each model
@@ -213,35 +215,37 @@ public class ModelSpecificDistanceCalculator implements DistanceCalculator {
             return;
         }
 
-        new ModelSpecificDistanceUpdater(mContext, mRemoteUpdateUrlString,
-                new ModelSpecificDistanceUpdater.CompletionHandler() {
-            @Override
-            public void onComplete(String body, Exception ex, int code) {
-                if (ex != null) {
-                    LogManager.w(TAG, "Cannot updated distance models from online database at %s",
-                            ex, mRemoteUpdateUrlString);
-                }
-                else if (code != 200) {
-                    LogManager.w(TAG, "Cannot updated distance models from online database at %s "
-                            + "due to HTTP status code %s", mRemoteUpdateUrlString, code);
+        try {
+            new ModelSpecificDistanceUpdater(mContext, mRemoteUpdateUrlString,
+                    new ModelSpecificDistanceUpdater.CompletionHandler() {
+                        @Override
+                        public void onComplete(String body, Exception ex, int code) {
+                            if (ex != null) {
+                                LogManager.w(TAG, "Cannot updated distance models from online database at %s",
+                                        ex, mRemoteUpdateUrlString);
+                            } else if (code != 200) {
+                                LogManager.w(TAG, "Cannot updated distance models from online database at %s "
+                                        + "due to HTTP status code %s", mRemoteUpdateUrlString, code);
 
-                }
-                else {
-                    LogManager.d(TAG,
-                            "Successfully downloaded distance models from online database");
-                    try {
-                        buildModelMap(body);
-                        if (saveJson(body)) {
-                            loadModelMapFromFile();
-                            mDistanceCalculator = findCalculatorForModel(mRequestedModel);
-                            LogManager.i(TAG, "Successfully updated distance model with latest from online database");
+                            } else {
+                                LogManager.d(TAG,
+                                        "Successfully downloaded distance models from online database");
+                                try {
+                                    buildModelMap(body);
+                                    if (saveJson(body)) {
+                                        loadModelMapFromFile();
+                                        mDistanceCalculator = findCalculatorForModel(mRequestedModel);
+                                        LogManager.i(TAG, "Successfully updated distance model with latest from online database");
+                                    }
+                                } catch (JSONException e) {
+                                    LogManager.w(e, TAG, "Cannot parse json from downloaded distance model");
+                                }
+                            }
                         }
-                    } catch (JSONException e) {
-                        LogManager.w(e, TAG, "Cannot parse json from downloaded distance model");
-                    }
-                }
-            }
-        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } catch (RejectedExecutionException e) {
+            Log.w(TAG, "Skipping distance model fetch because system is too busy", e);
+        }
     }
 
     private void buildModelMap(String jsonString) throws JSONException {

@@ -10,6 +10,7 @@ import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.Region;
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.logging.LogManager;
+import org.altbeacon.beacon.service.BeaconService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,9 @@ public class RegionBootstrap {
         regions = new ArrayList<Region>();
         regions.add(region);
 		beaconConsumer = new InternalBeaconConsumer();
+        // Call with startService so we can return Service.START_STICKY
+        // And have it restart itself after being killed for memory pressure
+        application.getApplicationContext().startService(new Intent(application.getApplicationContext(), BeaconService.class));
         beaconManager.bind(beaconConsumer);
         LogManager.d(TAG, "Waiting for BeaconService connection");
 	}

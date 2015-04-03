@@ -219,6 +219,14 @@ public class BeaconService extends Service {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId)   {
+        LogManager.d(TAG, "onStartCommand, intent: "+intent+" flags: "+flags+" startId: "+startId);
+        // This will cause the OS to re-launch automatically after being killed due to memory pressure
+        return Service.START_STICKY;
+    }
+
+
+    @Override
     @TargetApi(18)
     public void onDestroy() {
         if (android.os.Build.VERSION.SDK_INT < 18) {
