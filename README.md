@@ -1,7 +1,7 @@
 Android Beacon Library
 =======================
 
-[![Build Status](https://snap-ci.com/AltBeacon/android-beacon-library/branch/master/build_image)](https://snap-ci.com/AltBeacon/android-beacon-library/branch/master)
+[![Build Status](https://circleci.com/gh/AltBeacon/android-beacon-library.png?circle-token=4e11fb0dccaa8b98bc67fdbe38b179e4a7d07c27)](https://circleci.com/gh/AltBeacon/android-beacon-library)
 
 An Android library providing APIs to interact with beacons.  Please visit the
 [project website](http://altbeacon.github.io/android-beacon-library/) for how to use this library.
@@ -48,7 +48,7 @@ to use the JCenter Repository
 ```groovy
 dependencies {
     ...
-    compile 'org.altbeacon:android-beacon-library:${altbeacon.version}'
+    implementation 'org.altbeacon:android-beacon-library:${altbeacon.version}'
     ...
 }
 ```
@@ -58,13 +58,14 @@ replacing `${altbeacon.version}` with the version you wish to use.
 ## How to build this Library
 
 This project uses an AndroidStudio/gradle build system and is known working with Android Studio
-1.0.1 and Gradle 2.2.1
+3.4.1 and Gradle 5.1.1
 
 Key Gradle build targets:
 
     ./gradlew test # run unit tests
     ./gradlew build # development build
-    ./gradlew release  # release build  
+    ./gradlew release -Prelease # release build
+    ./gradlew generateReleaseJavadoc
 
 ## License
 
@@ -92,19 +93,19 @@ The following instructions are for project administrators.
 
 2. Configure your  ~/.gradle/gradle.properties with:
 
-    signing.keyId=<my key id>
-    signing.password=<my passphrase>
-    signing.secretKeyRingFile=~/.gnupg/secring.gpg
-    signingPassword=<my passphrase>
-
-    bintrayUserName=<bintray username>
-    bintrayKey=<bintray api key>
+        signing.keyId=<my key id>
+        signing.password=<my passphrase>
+        signing.secretKeyRingFile=~/.gnupg/secring.gpg
+        signingPassword=<my passphrase>
+        
+        bintrayUserName=<bintray username>
+        bintrayKey=<bintray api key>
 
 3. Run the build and upload
 
-   git tag <version>
-   git push --tags 
-   ./gradlew release -Prelease
-   ./gradlew bintrayUpload -Prelease
+        git tag <version>
+        git push --tags 
+        ./gradlew release -Prelease
+        ./gradlew bintrayUpload -Prelease
 
 4. Log in to JCenter, hit the button to publish the release, then select the Maven tab and enter your credentials to Sync to Maven
