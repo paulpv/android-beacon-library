@@ -10,7 +10,7 @@ buildscript {
 
     dependencies {
 
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.5.3'
         //noinspection GradleDependency
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.1'
         //noinspection GradleDependency

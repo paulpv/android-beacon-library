@@ -50,7 +50,7 @@ dependencies {
     implementation fileTree ( dir: 'libs', include: ['*.jar'] )
     
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
 
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:4.1'
@@ -58,11 +58,11 @@ dependencies {
     testImplementation 'com.squareup:fest-android:1.0.8@aar'
     testImplementation 'org.mockito:mockito-core:2.23.4'
 
-    androidTestUtil 'androidx.test:orchestrator:1.1.0'
+    androidTestUtil 'androidx.test:orchestrator:1.2.0'
 
-    androidTestImplementation 'androidx.test:rules:1.1.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
     androidTestImplementation 'org.apache.commons:commons-math3:3.6.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
 apply from: '../gradle/package.gradle'
