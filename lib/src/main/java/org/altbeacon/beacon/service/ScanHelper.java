@@ -449,5 +449,4 @@ class ScanHelper {
         }
         return matched;
     }
-
 }
