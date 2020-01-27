@@ -214,10 +214,10 @@ public class RegionBootstrap {
          * Method reserved for system use
          */
         @Override
-        public boolean bindService(Intent intent, ServiceConnection conn, int arg2) {
+        public boolean bindService(Intent intent, ServiceConnection conn, int flags) {
             this.serviceIntent = intent;
             context.startService(intent);
-            return context.bindService(intent, conn, arg2);
+            return context.bindService(intent, conn, flags);
 
         }
 
