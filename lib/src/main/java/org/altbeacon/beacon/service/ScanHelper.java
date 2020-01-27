@@ -153,18 +153,28 @@ class ScanHelper {
                 mCycledLeScanCallback, crashResolver);
     }
 
+    // TODO:(pv) Comment why this is necessary (as in, is the ScanProcessor/Executor really *NOT* serial?)
+    public static boolean DEBUG_SERIALIZE_EXECUTOR = true;
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     void processScanResult(BluetoothDevice device, int rssi, byte[] scanRecord) {
-        NonBeaconLeScanCallback nonBeaconLeScanCallback = mBeaconManager.getNonBeaconLeScanCallback();
+        if (LogManager.isVerboseLoggingEnabled()) {
+            LogManager.e(TAG, "#SCAN processScanResult: device=" + device + ", rssi=" + rssi + ", scanRecord=" + BeaconParser.byteArrayToString(scanRecord));
+        }
 
+        NonBeaconLeScanCallback nonBeaconLeScanCallback = mBeaconManager.getNonBeaconLeScanCallback();
+        ScanData scanData = new ScanData(device, rssi, scanRecord);
+        if (DEBUG_SERIALIZE_EXECUTOR) {
+            processScan(nonBeaconLeScanCallback, scanData);
+        } else {
         try {
-            new ScanHelper.ScanProcessor(nonBeaconLeScanCallback).executeOnExecutor(getExecutor(),
-                    new ScanHelper.ScanData(device, rssi, scanRecord));
+                new ScanProcessor(nonBeaconLeScanCallback).executeOnExecutor(getExecutor(), scanData);
         } catch (RejectedExecutionException e) {
             LogManager.w(TAG, "Ignoring scan result because we cannot keep up.");
         } catch (OutOfMemoryError e) {
             LogManager.w(TAG, "Ignoring scan result because we cannot start a thread to keep up.");
         }
+    }
     }
 
     void reloadParsers() {
@@ -312,6 +322,35 @@ class ScanHelper {
         }
     }
 
+    final DetectionTracker mDetectionTracker = DetectionTracker.getInstance();
+
+    private void processScan(NonBeaconLeScanCallback nonBeaconLeScanCallback, ScanData scanData) {
+        Beacon beacon = null;
+        for (BeaconParser parser : ScanHelper.this.mBeaconParsers) {
+            beacon = parser.fromScanData(scanData.scanRecord, scanData.rssi, scanData.device);
+            if (beacon != null) {
+                break;
+            }
+        }
+        if (beacon != null) {
+            if (LogManager.isVerboseLoggingEnabled()) {
+                LogManager.d(TAG, "Beacon packet detected for: "+beacon+" with rssi "+beacon.getRssi());
+            }
+            mDetectionTracker.recordDetection();
+            if (mCycledScanner != null && !mCycledScanner.getDistinctPacketsDetectedPerScan()) {
+                if (!mDistinctPacketDetector.isPacketDistinct(scanData.device.getAddress(), scanData.scanRecord)) {
+                    LogManager.i(TAG, "Non-distinct packets detected in a single scan.  Restarting scans unecessary.");
+                    mCycledScanner.setDistinctPacketsDetectedPerScan(true);
+                }
+            }
+            processBeaconFromScan(beacon);
+        } else {
+            if (nonBeaconLeScanCallback != null) {
+                nonBeaconLeScanCallback.onNonBeaconLeScan(scanData.device, scanData.rssi, scanData.scanRecord);
+            }
+        }
+    }
+
     /**
      * Helper for processing BLE beacons. This has been extracted from {@link ScanHelper.ScanProcessor} to
      * support simulated scan data for test and debug environments.
@@ -379,7 +418,6 @@ class ScanHelper {
     }
 
     private class ScanProcessor extends AsyncTask<ScanHelper.ScanData, Void, Void> {
-        final DetectionTracker mDetectionTracker = DetectionTracker.getInstance();
 
         private final NonBeaconLeScanCallback mNonBeaconLeScanCallback;
 
@@ -391,34 +429,7 @@ class ScanHelper {
         @Override
         protected Void doInBackground(ScanHelper.ScanData... params) {
             ScanHelper.ScanData scanData = params[0];
-            Beacon beacon = null;
-
-            for (BeaconParser parser : ScanHelper.this.mBeaconParsers) {
-                beacon = parser.fromScanData(scanData.scanRecord,
-                        scanData.rssi, scanData.device);
-
-                if (beacon != null) {
-                    break;
-                }
-            }
-            if (beacon != null) {
-                if (LogManager.isVerboseLoggingEnabled()) {
-                    LogManager.d(TAG, "Beacon packet detected for: "+beacon+" with rssi "+beacon.getRssi());
-                }
-                mDetectionTracker.recordDetection();
-                if (mCycledScanner != null && !mCycledScanner.getDistinctPacketsDetectedPerScan()) {
-                    if (!mDistinctPacketDetector.isPacketDistinct(scanData.device.getAddress(),
-                            scanData.scanRecord)) {
-                        LogManager.i(TAG, "Non-distinct packets detected in a single scan.  Restarting scans unecessary.");
-                        mCycledScanner.setDistinctPacketsDetectedPerScan(true);
-                    }
-                }
-                processBeaconFromScan(beacon);
-            } else {
-                if (mNonBeaconLeScanCallback != null) {
-                    mNonBeaconLeScanCallback.onNonBeaconLeScan(scanData.device, scanData.rssi, scanData.scanRecord);
-                }
-            }
+            processScan(mNonBeaconLeScanCallback, scanData);
             return null;
         }
 

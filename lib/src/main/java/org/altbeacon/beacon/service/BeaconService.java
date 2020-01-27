@@ -40,6 +40,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -99,6 +100,7 @@ public class BeaconService extends Service {
      *
      */
 
+    /* TODO:(pv) UNUSED?
     /**
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
@@ -110,6 +112,7 @@ public class BeaconService extends Service {
             return BeaconService.this;
         }
     }
+    */
 
     /**
      * Command to the service to display a message

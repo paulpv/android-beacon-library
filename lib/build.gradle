@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply from: '../gradle/version.gradle'
-apply plugin: "com.vanniktech.android.javadoc"
+//apply from: '../gradle/version.gradle'
+//apply plugin: "com.vanniktech.android.javadoc"
 
 android {
     compileSdkVersion 28
@@ -65,6 +65,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }
 
-apply from: '../gradle/package.gradle'
+//apply from: '../gradle/package.gradle'
 
 

@@ -777,7 +777,7 @@ public class BeaconParser implements Serializable {
      */
     public int getPowerCorrection() { return mDBmCorrection; }
 
-    protected static String bytesToHex(byte[] bytes) {
+    public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         int v;
         for ( int j = 0; j < bytes.length; j++ ) {
@@ -847,7 +847,7 @@ public class BeaconParser implements Serializable {
         return true;
     }
 
-    private String byteArrayToString(byte[] bytes) {
+    public static String byteArrayToString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             sb.append(String.format("%02x", bytes[i]));
