@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.ParcelUuid;
 import android.os.PowerManager;
 import android.os.SystemClock;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -110,8 +111,6 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
                     else {
                         LogManager.d(TAG, "Suppressing scan between cycles because the between scan cycle is too short.");
                     }
-
-
                 } else {
                     // TODO: Consider starting a scan with delivery based on the filters *NOT* being seen
                     // This API is now available in Android M
@@ -262,7 +261,6 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
                     // Thrown by Samsung Knox devices if bluetooth access denied for an app
                     LogManager.e(TAG, "Cannot start scan.  Security Exception");
                 }
-
             }
         });
     }
@@ -294,7 +292,6 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
                     // Thrown by Samsung Knox devices if bluetooth access denied for an app
                     LogManager.e(TAG, "Cannot stop scan.  Security Exception");
                 }
-
             }
         });
     }

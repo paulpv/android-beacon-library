@@ -262,8 +262,10 @@ public class BeaconManager {
         backgroundBetweenScanPeriod = p;
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                 backgroundBetweenScanPeriod < 15*60*1000 /* 15 min */) {
-            LogManager.w(TAG, "Setting a short backgroundBetweenScanPeriod has no effect on "+
-                    "Android 8+, which is limited to scanning every ~15 minutes");
+            if (mForegroundServiceNotification == null) {
+                LogManager.w(TAG, "Setting a short backgroundBetweenScanPeriod has no " +
+                        "effect on Android 8+, which is limited to scanning every ~15 minutes");
+            }
         }
     }
 
@@ -589,10 +591,14 @@ public class BeaconManager {
             return;
         }
         if (!enabled && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            LogManager.w(TAG, "Disabling ScanJobs on Android 8+ may disable delivery of "+
-                    "beacon callbacks in the background unless a foreground service is active.");
+            if (mForegroundServiceNotification == null) {
+                LogManager.w(TAG, "Disabling ScanJobs on Android 8+ may disable delivery " +
+                        "of beacon callbacks in the background unless a foreground service is " +
+                        "active.");
+            }
         }
         if(!enabled && android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            LogManager.d(TAG, "Canceling any previously scheduled jobs");
             ScanJobScheduler.getInstance().cancelSchedule(mContext);
         }
         mScheduledScanJobsEnabled = enabled;
@@ -1395,9 +1401,9 @@ public class BeaconManager {
         if (notification == null) {
             throw new NullPointerException("Notification cannot be null");
         }
-        setEnableScheduledScanJobs(false);
         mForegroundServiceNotification = notification;
         mForegroundServiceNotificationId = notificationId;
+        setEnableScheduledScanJobs(false);
     }
 
     /**

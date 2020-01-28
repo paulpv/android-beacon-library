@@ -73,7 +73,7 @@ public class ModelSpecificDistanceCalculator implements DistanceCalculator {
         mRemoteUpdateUrlString = remoteUpdateUrlString;
         mContext = context;
         loadModelMap();
-        mDistanceCalculator = findCalculatorForModelWithLock(model);
+        //mDistanceCalculator = findCalculatorForModelWithLock(model); // Unnecessary; done in loadModelMap()
     }
 
     /**

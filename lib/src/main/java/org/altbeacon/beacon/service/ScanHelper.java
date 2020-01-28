@@ -33,6 +33,7 @@ import org.altbeacon.beacon.service.scanner.CycledLeScanner;
 import org.altbeacon.beacon.service.scanner.DistinctPacketDetector;
 import org.altbeacon.beacon.service.scanner.NonBeaconLeScanCallback;
 import org.altbeacon.beacon.service.scanner.ScanFilterUtils;
+import org.altbeacon.beacon.simulator.BeaconSimulator;
 import org.altbeacon.beacon.startup.StartupBroadcastReceiver;
 import org.altbeacon.bluetooth.BluetoothCrashResolver;
 
@@ -276,14 +277,16 @@ class ScanHelper {
         @MainThread
         @SuppressLint("WrongThread")
         public void onCycleEnd() {
-            if (BeaconManager.getBeaconSimulator() != null) {
+            BeaconSimulator beaconSimulator = BeaconManager.getBeaconSimulator();
+            if (beaconSimulator != null) {
                 LogManager.d(TAG, "Beacon simulator enabled");
                 // if simulatedScanData is provided, it will be seen every scan cycle.  *in addition* to anything actually seen in the air
                 // it will not be used if we are not in debug mode
-                if (BeaconManager.getBeaconSimulator().getBeacons() != null) {
+                List<Beacon> beacons = beaconSimulator.getBeacons();
+                if (beacons != null) {
                     if (0 != (mContext.getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE)) {
-                        LogManager.d(TAG, "Beacon simulator returns "+BeaconManager.getBeaconSimulator().getBeacons().size()+" beacons.");
-                        for (Beacon beacon : BeaconManager.getBeaconSimulator().getBeacons()) {
+                        LogManager.d(TAG, "Beacon simulator returns "+beacons.size()+" beacons.");
+                        for (Beacon beacon : beacons) {
                             // This is an expensive call and we do not want to block the main thread.
                             // But here we are in debug/test mode so we allow it on the main thread.
                             //noinspection WrongThread
