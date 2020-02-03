@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.os.PowerManager;
 import android.os.SystemClock;
 
 import androidx.annotation.AnyThread;
@@ -177,7 +176,7 @@ public abstract class CycledLeScanner {
      */
     @MainThread
     public void setScanPeriods(long scanPeriod, long betweenScanPeriod, boolean backgroundFlag) {
-        LogManager.d(TAG, "Set scan periods called with %s, %s Background mode must have changed.",
+        LogManager.d(TAG, "Set scan periods called with %s, %s;  Background mode must have changed.",
                 scanPeriod, betweenScanPeriod);
         if (mBackgroundFlag != backgroundFlag) {
             mRestartNeeded = true;
@@ -186,10 +185,10 @@ public abstract class CycledLeScanner {
         mScanPeriod = scanPeriod;
         mBetweenScanPeriod = betweenScanPeriod;
         if (mBackgroundFlag) {
-            LogManager.d(TAG, "We are in the background.  Setting wakeup alarm");
+            LogManager.d(TAG, "We are in the background;  Setting wakeup alarm.");
             setWakeUpAlarm();
         } else {
-            LogManager.d(TAG, "We are not in the background.  Cancelling wakeup alarm");
+            LogManager.d(TAG, "We are not in the background;  Cancelling wakeup alarm.");
             cancelWakeUpAlarm();
         }
         long now = SystemClock.elapsedRealtime();

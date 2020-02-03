@@ -168,14 +168,14 @@ class ScanHelper {
         if (DEBUG_SERIALIZE_EXECUTOR) {
             processScan(nonBeaconLeScanCallback, scanData);
         } else {
-        try {
+            try {
                 new ScanProcessor(nonBeaconLeScanCallback).executeOnExecutor(getExecutor(), scanData);
-        } catch (RejectedExecutionException e) {
-            LogManager.w(TAG, "Ignoring scan result because we cannot keep up.");
-        } catch (OutOfMemoryError e) {
-            LogManager.w(TAG, "Ignoring scan result because we cannot start a thread to keep up.");
+            } catch (RejectedExecutionException e) {
+                LogManager.w(TAG, "Ignoring scan result because we cannot keep up.");
+            } catch (OutOfMemoryError e) {
+                LogManager.w(TAG, "Ignoring scan result because we cannot start a thread to keep up.");
+            }
         }
-    }
     }
 
     void reloadParsers() {

@@ -165,6 +165,10 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
         return deferScan;
     }
 
+    private boolean isSamsung() {
+        return Build.MANUFACTURER.equalsIgnoreCase("samsung");
+    }
+
     @Override
     protected void startScan() {
         if (!isBluetoothOn()) {
@@ -190,25 +194,25 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
             // We only add these filters on 8.1+ devices, because adding scan filters has been reported
             // to cause scan failures on some Samsung devices with Android 5.x
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                if (Build.MANUFACTURER.equalsIgnoreCase("samsung") && !mPowerManager.isInteractive()) {
+                if (isSamsung() && !mPowerManager.isInteractive()) {
                     // On the Samsung Galaxy Note 8.1, scans are blocked with screen off when the
                     // scan filter is empty (wildcard).  We do a more detailed filter on Samsung only
                     // because it might block detections of AltBeacon packets with non-standard
                     // manufacturer codes.  See #769 for details.
-                    LogManager.d(TAG, "Using a non-empty scan filter since this is Samsung 8.1+");
+                    LogManager.d(TAG, "Using a explicit non-empty scan filter on Samsung 8.1+ with screen off");
                     filters = new ScanFilterUtils().createScanFiltersForBeaconParsers(
                             mBeaconManager.getBeaconParsers());
                 }
                 else {
-                    if (Build.MANUFACTURER.equalsIgnoreCase("samsung")) {
-                        LogManager.d(TAG, "Using a wildcard scan filter on Samsung because the screen is on.  We will switch to a non-empty filter if the screen goes off");
+                    if (isSamsung()) {
+                        LogManager.d(TAG, "Using a wildcard scan filter on 8.1+ Samsung with screen is on.  We will switch to a non-empty filter if the screen goes off");
                         // if this is samsung, as soon as the screen goes off we will need to start a different scan
                         // that has scan filters
                         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
                         mContext.getApplicationContext().registerReceiver(mSamsungScreenOffReceiver, filter);
                         LogManager.d(TAG, "registering SamsungScreenOffReceiver "+mSamsungScreenOffReceiver);
                     } else {
-                        LogManager.d(TAG, "Using an empty scan filter since this is 8.1+ on Non-Samsung");
+                        LogManager.d(TAG, "Using a wildcard scan filter on 8.1+ on Non-Samsung");
                     }
                     // The wildcard filter matches everything.
                     filters = new ScanFilterUtils().createWildcardScanFilters();
@@ -413,8 +417,7 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
         public void onReceive(Context context, Intent intent) {
             if (!mMainScanCycleActive) {
                 LogManager.d(TAG, "Screen has gone off while outside the main scan cycle on Samsung.  We will do nothing.");
-            }
-            else {
+            } else {
                 LogManager.d(TAG, "Screen has gone off while using a wildcard scan filter on Samsung.  Restarting scanner with non-empty filters.");
                 stopScan();
                 startScan();

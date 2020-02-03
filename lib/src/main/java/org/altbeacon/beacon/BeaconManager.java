@@ -1273,7 +1273,7 @@ public class BeaconManager {
 
         public ConsumerInfo() {
             this.isConnected = false;
-            this.beaconServiceConnection= new BeaconServiceConnection();
+            this.beaconServiceConnection = new BeaconServiceConnection();
         }
     }
 
@@ -1422,6 +1422,7 @@ public class BeaconManager {
             throw new IllegalStateException("May not be called after consumers are already bound");
         }
         mForegroundServiceNotification = null;
+        mForegroundServiceNotificationId = -1;
         setScheduledScanJobsEnabledDefault();
     }
 
