@@ -175,6 +175,7 @@ public class CycledLeScannerForLollipop extends CycledLeScanner {
             LogManager.d(TAG, "Not starting scan because bluetooth is off");
             return;
         }
+
         List<ScanFilter> filters = new ArrayList<ScanFilter>();
         ScanSettings settings = null;
 

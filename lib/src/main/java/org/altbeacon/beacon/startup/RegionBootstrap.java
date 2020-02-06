@@ -32,8 +32,7 @@ import java.util.List;
  * RegionBootstrap.
  */
 public class RegionBootstrap {
-
-    protected static final String TAG = "AppStarter";
+    protected static final String TAG = "RegionBootstrap";
     private BeaconManager beaconManager;
     private MonitorNotifier monitorNotifier;
     private Context context;
@@ -55,6 +54,7 @@ public class RegionBootstrap {
         }
         this.context = context.getApplicationContext();
         this.monitorNotifier = monitorNotifier;
+
         regions = new ArrayList<Region>();
         regions.add(region);
 
@@ -97,9 +97,11 @@ public class RegionBootstrap {
             throw new NullPointerException("The BootstrapNotifier instance is returning null from its getApplicationContext() method.  Have you implemented this method?");
         }
         this.context = application.getApplicationContext();
+        this.monitorNotifier = application;
+
         regions = new ArrayList<Region>();
         regions.add(region);
-        this.monitorNotifier = application;
+
         beaconManager = BeaconManager.getInstanceForApplication(context);
         beaconConsumer = new InternalBeaconConsumer();
         beaconManager.bind(beaconConsumer);
@@ -118,8 +120,10 @@ public class RegionBootstrap {
         }
 
         this.context = application.getApplicationContext();
-        this.regions = regions;
         this.monitorNotifier = application;
+
+        this.regions = regions;
+
         beaconManager = BeaconManager.getInstanceForApplication(context);
         beaconConsumer = new InternalBeaconConsumer();
         beaconManager.bind(beaconConsumer);
@@ -218,7 +222,6 @@ public class RegionBootstrap {
             this.serviceIntent = intent;
             context.startService(intent);
             return context.bindService(intent, conn, flags);
-
         }
 
         /**
